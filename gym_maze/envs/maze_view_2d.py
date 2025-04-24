@@ -31,7 +31,7 @@ class MazeView2D:
             self.__maze = Maze(maze_cells=Maze.load_maze(maze_file_path))
 
         self.maze_size = self.__maze.maze_size
-        if self.__enable_render is True:
+        if self.__enable_render:
             # to show the right and bottom border
             self.screen = pygame.display.set_mode(screen_size)
             self.__screen_size = tuple(map(sum, zip(screen_size, (-1, -1))))
@@ -45,7 +45,7 @@ class MazeView2D:
         # Create the Robot
         self.__robot = self.entrance
 
-        if self.__enable_render is True:
+        if self.__enable_render:
             # Create a background
             self.background = pygame.Surface(self.screen.get_size()).convert()
             self.background.fill((255, 255, 255))

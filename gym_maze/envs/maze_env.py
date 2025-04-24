@@ -1,12 +1,13 @@
 import numpy as np
 
-import gym
-from gym import error, spaces, utils
-from gym.utils import seeding
+import gymnasium
+import gymnasium as gym
+from gymnasium import error, spaces, utils
+from gymnasium.utils import seeding
 from gym_maze.envs.maze_view_2d import MazeView2D
 
 
-class MazeEnv(gym.Env):
+class MazeEnv(gymnasium.Env):
     metadata = {
         "render.modes": ["human", "rgb_array"],
     }
@@ -71,7 +72,7 @@ class MazeEnv(gym.Env):
         return [seed]
 
     def step(self, action):
-        if isinstance(action, int):
+        if isinstance(action, int) or isinstance(action, np.int64):
             self.maze_view.move_robot(self.ACTION[action])
         else:
             self.maze_view.move_robot(action)
@@ -82,19 +83,27 @@ class MazeEnv(gym.Env):
         else:
             reward = -0.1/(self.maze_size[0]*self.maze_size[1])
             done = False
+        
+        self.steps += 1
+        if self.steps >= 200:
+            self.truncated = True
+            done = False
+
 
         self.state = self.maze_view.robot
 
         info = {}
 
-        return self.state, reward, done, info
+        return self.state, reward, done, self.truncated, info
 
-    def reset(self):
+    def reset(self, seed=None, options=None):
         self.maze_view.reset_robot()
-        self.state = np.zeros(2)
+        self.state = np.zeros(2, dtype=int)
         self.steps_beyond_done = None
         self.done = False
-        return self.state
+        self.truncated = False
+        self.steps = 0
+        return self.state, {}
 
     def is_game_over(self):
         return self.maze_view.game_over
